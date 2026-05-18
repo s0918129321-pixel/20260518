@@ -40,8 +40,8 @@ const emojiMap = {
   'Rock': '✊ 石頭', 
   'Paper': '🖐️ 布', 
   'Scissors': '✌️ 剪刀', 
-  'Start': '👍 開始 (右手)',
-  'Reset': '👍 重置 (左手)',
+  'Start': '👍 開始 (右手比讚)',
+  'Reset': '4️⃣ 重置 (左手比四)',
   'None': '等待偵測...' 
 };
 
@@ -71,10 +71,12 @@ function getHandSign(landmarks) {
 
     // 石頭：四指握拳且大拇指沒翹起
     if (openCount === 0 && !thumbOpen) return 'Rock';
-    // 比讚手勢
+    // 比讚手勢 (大拇指開，四指握拳)
     if (openCount === 0 && thumbOpen) return 'ThumbsUp';
-
-    if (openCount >= 4) return 'Paper';
+    // 比四手勢 (大拇指收，四指開)
+    if (openCount === 4 && !thumbOpen) return 'Four';
+    // 布 (大拇指開，四指開 = 5指全開)
+    if (openCount === 4 && thumbOpen) return 'Paper';
     if (openCount === 2 && indexOpen && middleOpen) return 'Scissors';
     return 'None';
 }
@@ -144,8 +146,12 @@ function onResults(results) {
             let currentGesture = getHandSign(landmarks);
             
             // 根據左右手判定功能
-            if (currentGesture === 'ThumbsUp') {
-                currentGesture = (handedness === 'Right') ? 'Start' : 'Reset';
+            if (currentGesture === 'ThumbsUp' && handedness === 'Right') {
+                currentGesture = 'Start';
+            } else if (currentGesture === 'Four' && handedness === 'Left') {
+                currentGesture = 'Reset';
+            } else if (currentGesture === 'ThumbsUp' || currentGesture === 'Four') {
+                currentGesture = 'None'; // 排除非對應手的特殊手勢
             }
 
             if (currentGesture !== 'None' && currentGesture === lastGesture) {
