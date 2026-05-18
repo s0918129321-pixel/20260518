@@ -17,6 +17,8 @@ const emojiMap = {
   'Rock': '✊ 石頭', 
   'Paper': '🖐️ 布', 
   'Scissors': '✌️ 剪刀', 
+  'Continue': '☝️ 繼續 (比1)',
+  'End': '👍 重置 (讚)',
   'None': '等待偵測...' 
 };
 
@@ -35,6 +37,8 @@ const botScoreEl = document.getElementById('botScore');
  */
 function getHandSign(landmarks) {
     // MediaPipe 座標系中，Y 越小代表越高
+    // 大拇指判斷：Tip(4) 座標小於 IP(3) 時視為翹起
+    const thumbOpen = landmarks[4].y < landmarks[3].y;
     const indexOpen = landmarks[8].y < landmarks[6].y;
     const middleOpen = landmarks[12].y < landmarks[10].y;
     const ringOpen = landmarks[16].y < landmarks[14].y;
@@ -42,8 +46,13 @@ function getHandSign(landmarks) {
 
     const openCount = [indexOpen, middleOpen, ringOpen, pinkyOpen].filter(Boolean).length;
 
-    // 簡單的判定規則
-    if (openCount === 0) return 'Rock';
+    // 石頭：四指握拳且大拇指沒翹起
+    if (openCount === 0 && !thumbOpen) return 'Rock';
+    // 比 1 (繼續)：只有食指伸直
+    if (openCount === 1 && indexOpen) return 'Continue';
+    // 比讚 (結束/重置)：四指握拳且大拇指翹起
+    if (openCount === 0 && thumbOpen) return 'End';
+
     if (openCount >= 4) return 'Paper';
     if (openCount === 2 && indexOpen && middleOpen) return 'Scissors';
     return 'None';
@@ -83,7 +92,8 @@ function playGame(userSign) {
     // 2 秒後重置，準備下一輪
     setTimeout(() => {
         isGameLocked = false;
-        gameStatusEl.innerText = "請準備出拳...";
+        // 提示使用者可以使用手勢繼續
+        gameStatusEl.innerText = "請比 ☝️ (1) 繼續，或比 🖐️ 出拳";
         gameStatusEl.className = "game-status";
         botChoiceEl.innerText = "電腦等待中";
     }, 2000);
