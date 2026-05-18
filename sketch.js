@@ -14,12 +14,12 @@ const GESTURE_THRESHOLD = 15; // 需要連續 15 幀偵測到相同手勢才觸�
 let isCountingDown = false;
 
 /**
- * 啟動 5 秒倒數計時
+ * 啟動 3 秒倒數計時
  */
 function startCountdown() {
     isCountingDown = true;
     isGameLocked = true; // 倒數期間鎖定遊戲判定
-    let count = 5;
+    let count = 3;
     botChoiceEl.innerText = "準備中...";
     
     const timer = setInterval(() => {
@@ -40,8 +40,8 @@ const emojiMap = {
   'Rock': '✊ 石頭', 
   'Paper': '🖐️ 布', 
   'Scissors': '✌️ 剪刀', 
-  'Continue': '☝️ 比1',
-  'End': '👍 比讚',
+  'Start': '👍 開始 (右手)',
+  'Reset': '👍 重置 (左手)',
   'None': '等待偵測...' 
 };
 
@@ -71,10 +71,8 @@ function getHandSign(landmarks) {
 
     // 石頭：四指握拳且大拇指沒翹起
     if (openCount === 0 && !thumbOpen) return 'Rock';
-    // 比 1 (繼續)：只有食指伸直
-    if (openCount === 1 && indexOpen) return 'Continue';
-    // 比讚 (結束/重置)：四指握拳且大拇指翹起
-    if (openCount === 0 && thumbOpen) return 'End';
+    // 比讚手勢
+    if (openCount === 0 && thumbOpen) return 'ThumbsUp';
 
     if (openCount >= 4) return 'Paper';
     if (openCount === 2 && indexOpen && middleOpen) return 'Scissors';
@@ -115,8 +113,8 @@ function playGame(userSign) {
     // 2 秒後重置，準備下一輪
     setTimeout(() => {
         isGameLocked = false;
-        // 提示使用者使用右手比讚開始
-        gameStatusEl.innerText = "右手 👍 開始，左手 👍 重置";
+        // 提示使用者
+        gameStatusEl.innerText = "右手 👍 倒數 3 秒開始";
         gameStatusEl.className = "game-status";
         botChoiceEl.innerText = "電腦等待中";
     }, 2000);
@@ -134,24 +132,42 @@ function onResults(results) {
     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        for (const landmarks of results.multiHandLandmarks) {
+        for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+            const landmarks = results.multiHandLandmarks[i];
+            const handedness = results.multiHandedness[i].label; // 'Left' 或 'Right'
+
             // 繪製骨架
             drawingUtils.drawConnectors(canvasCtx, landmarks, mpHands.HAND_CONNECTIONS, {color: '#00FF00', lineWidth: 5});
             drawingUtils.drawLandmarks(canvasCtx, landmarks, {color: '#FF0000', lineWidth: 2});
 
             // 處理手勢
-            const currentGesture = getHandSign(landmarks);
-            if (!isGameLocked) {
-                if (currentGesture !== 'None' && currentGesture === lastGesture) {
-                    gestureStableCount++;
-                    if (gestureStableCount >= GESTURE_THRESHOLD) {
+            let currentGesture = getHandSign(landmarks);
+            
+            // 根據左右手判定功能
+            if (currentGesture === 'ThumbsUp') {
+                currentGesture = (handedness === 'Right') ? 'Start' : 'Reset';
+            }
+
+            if (currentGesture !== 'None' && currentGesture === lastGesture) {
+                gestureStableCount++;
+                if (gestureStableCount >= GESTURE_THRESHOLD) {
+                    if (currentGesture === 'Start' && !isCountingDown) {
+                        startCountdown();
+                    } else if (currentGesture === 'Reset') {
+                        userScore = 0;
+                        botScore = 0;
+                        userScoreEl.innerText = "0";
+                        botScoreEl.innerText = "0";
+                        gameStatusEl.innerText = "分數已重置";
+                    } else if (!isGameLocked && ['Rock', 'Paper', 'Scissors'].includes(currentGesture)) {
                         playGame(currentGesture);
-                        gestureStableCount = 0;
                     }
-                } else {
                     gestureStableCount = 0;
                 }
-                lastGesture = currentGesture;
+            } else {
+                gestureStableCount = 0;
+            }
+            lastGesture = currentGesture;
 
                     // 繪製文字前先暫時還原翻轉，否則文字會變成反的
                     canvasCtx.save();
