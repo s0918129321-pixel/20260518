@@ -1,0 +1,1 @@
+// This file is required by MediaPipe's internal loader to prevent 404 errors.

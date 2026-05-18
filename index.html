@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="utf-8">
+  <title>手勢剪刀石頭布</title>
+  <link rel="stylesheet" href="hands.css">
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    .game-container {
+      position: relative;
+      width: fit-content;
+      margin: auto;
+    }
+    .game-overlay {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      text-align: center;
+      font-family: sans-serif;
+      min-width: 300px;
+      pointer-events: none;
+    }
+    .game-status { font-size: 2em; margin: 10px 0; }
+    .win { color: #4CAF50; }
+    .lose { color: #f44336; }
+    .draw { color: #FFC107; }
+    .score { font-size: 1.2em; border-top: 1px solid #777; padding-top: 10px; }
+    .output_canvas { border: 5px solid #333; border-radius: 10px; }
+
+    /* QR Code 樣式 */
+    #qrcode-container {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+      z-index: 100;
+      text-align: center;
+    }
+    #qrcode-container p {
+      color: black;
+      font-size: 12px;
+      margin-top: 5px;
+      font-family: sans-serif;
+    }
+    .control-panel { position: absolute; top: 10px; right: 10px; }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="game-overlay">
+      <div id="botChoice">等待玩家出拳...</div>
+      <div id="gameStatus" class="game-status">準備開始</div>
+      <div class="score">
+        玩家: <span id="userScore">0</span> | 電腦: <span id="botScore">0</span>
+      </div>
+    </div>
+    <video class="input_video" hidden></video>
+    <canvas class="output_canvas" width="1280px" height="720px"></canvas>
+  </div>
+
+  <!-- QR Code 容器 -->
+  <div id="qrcode-container">
+    <div id="qrcode"></div>
+    <p>手機掃描玩遊戲</p>
+  </div>
+
+  <div class="control-panel"></div>
+
+  <script src="deps.js"></script>
+  <script type="module" src="sketch.js"></script>
+</body>
+</html>
