@@ -11,6 +11,29 @@ let lastGesture = 'None';
 let gestureStableCount = 0;
 let isGameLocked = false; 
 const GESTURE_THRESHOLD = 15; // 需要連續 15 幀偵測到相同手勢才觸發
+let isCountingDown = false;
+
+/**
+ * 啟動 5 秒倒數計時
+ */
+function startCountdown() {
+    isCountingDown = true;
+    isGameLocked = true; // 倒數期間鎖定遊戲判定
+    let count = 5;
+    botChoiceEl.innerText = "準備中...";
+    
+    const timer = setInterval(() => {
+        if (count > 0) {
+            gameStatusEl.innerText = `倒數 ${count} 秒...`;
+            count--;
+        } else {
+            clearInterval(timer);
+            gameStatusEl.innerText = "請出拳！";
+            isGameLocked = false;
+            isCountingDown = false;
+        }
+    }, 1000);
+}
 
 const choices = ['Rock', 'Paper', 'Scissors'];
 const emojiMap = { 
