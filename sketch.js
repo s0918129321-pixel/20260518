@@ -126,6 +126,11 @@ function onResults(results) {
     document.body.classList.add('loaded');
     canvasCtx.save();
     canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+    // 自拍鏡頭水平翻轉 (Mirroring)
+    canvasCtx.translate(canvasElement.width, 0);
+    canvasCtx.scale(-1, 1);
+
     canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
     if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
@@ -148,10 +153,14 @@ function onResults(results) {
                 }
                 lastGesture = currentGesture;
 
-                // 在 Canvas 上顯示即時預覽
-                canvasCtx.font = "30px Arial";
-                canvasCtx.fillStyle = "yellow";
-                canvasCtx.fillText(`目前偵測: ${emojiMap[currentGesture]}`, 20, 50);
+                    // 繪製文字前先暫時還原翻轉，否則文字會變成反的
+                    canvasCtx.save();
+                    canvasCtx.scale(-1, 1);
+                    canvasCtx.translate(-canvasElement.width, 0);
+                    canvasCtx.font = "30px Arial";
+                    canvasCtx.fillStyle = "yellow";
+                    canvasCtx.fillText(`目前偵測: ${emojiMap[currentGesture]}`, 20, 50);
+                    canvasCtx.restore();
             }
         }
     }
@@ -187,7 +196,8 @@ hands.setOptions({
     maxNumHands: 1,
     modelComplexity: 1,
     minDetectionConfidence: 0.5,
-    minTrackingConfidence: 0.5
+    minTrackingConfidence: 0.5,
+    selfieMode: true
 });
 
 hands.onResults(onResults);
@@ -197,7 +207,8 @@ const camera = new Camera(videoElement, {
         await hands.send({image: videoElement});
     },
     width: 640,
-    height: 480
+    height: 480,
+    facingMode: 'user'
 });
 camera.start();
 
