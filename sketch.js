@@ -180,7 +180,7 @@ function generateQRCode() {
 }
 
 const hands = new Hands({
-    locateFile: (file) => `<https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}>`
+    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
 });
 
 hands.setOptions({
@@ -196,8 +196,8 @@ const camera = new Camera(videoElement, {
     onFrame: async () => {
         await hands.send({image: videoElement});
     },
-    width: 1280,
-    height: 720
+    width: 640,
+    height: 480
 });
 camera.start();
 
