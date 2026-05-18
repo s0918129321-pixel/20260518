@@ -40,8 +40,8 @@ const emojiMap = {
   'Rock': '✊ 石頭', 
   'Paper': '🖐️ 布', 
   'Scissors': '✌️ 剪刀', 
-  'Continue': '☝️ 繼續 (比1)',
-  'End': '👍 重置 (讚)',
+  'Continue': '☝️ 比1',
+  'End': '👍 比讚',
   'None': '等待偵測...' 
 };
 
@@ -115,8 +115,8 @@ function playGame(userSign) {
     // 2 秒後重置，準備下一輪
     setTimeout(() => {
         isGameLocked = false;
-        // 提示使用者可以使用手勢繼續
-        gameStatusEl.innerText = "請比 ☝️ (1) 繼續，或比 🖐️ 出拳";
+        // 提示使用者使用右手比讚開始
+        gameStatusEl.innerText = "右手 👍 開始，左手 👍 重置";
         gameStatusEl.className = "game-status";
         botChoiceEl.innerText = "電腦等待中";
     }, 2000);
