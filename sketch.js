@@ -169,15 +169,14 @@ function onResults(results) {
             }
             lastGesture = currentGesture;
 
-                    // 繪製文字前先暫時還原翻轉，否則文字會變成反的
-                    canvasCtx.save();
-                    canvasCtx.scale(-1, 1);
-                    canvasCtx.translate(-canvasElement.width, 0);
-                    canvasCtx.font = "30px Arial";
-                    canvasCtx.fillStyle = "yellow";
-                    canvasCtx.fillText(`目前偵測: ${emojiMap[currentGesture]}`, 20, 50);
-                    canvasCtx.restore();
-            }
+            // 繪製文字前先暫時還原翻轉，否則文字會變成反的
+            canvasCtx.save();
+            canvasCtx.scale(-1, 1);
+            canvasCtx.translate(-canvasElement.width, 0);
+            canvasCtx.font = "30px Arial";
+            canvasCtx.fillStyle = "yellow";
+            canvasCtx.fillText(`目前偵測: ${emojiMap[currentGesture]}`, 20, 50);
+            canvasCtx.restore();
         }
     }
     canvasCtx.restore();
